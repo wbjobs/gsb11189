@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IndexedDB v1–v5 迁移演示</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">IndexedDB · Web Worker · DOM · Canvas</p>
+        <h1>v1 到 v5 数据库版本迁移</h1>
+        <p class="subtitle">覆盖顺序升级、旧数据转换、中断续迁、失败回滚、版本回退提示、占用检测、隐私模式内存降级和浏览器兼容。</p>
+      </div>
+      <div id="modeBadge" class="mode-badge">检测中</div>
+    </header>
+
+    <section class="grid">
+      <article class="panel controls-panel">
+        <h2>迁移控制</h2>
+
+        <label class="field">
+          <span>目标版本</span>
+          <select id="targetVersion">
+            <option value="1">v1 基线</option>
+            <option value="2">v2 用户资料 + 帖子</option>
+            <option value="3">v3 帖子摘要 + 评论</option>
+            <option value="4">v4 评论短摘 + 附件</option>
+            <option value="5" selected>v5 附件转换 + 审计</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>失败注入</span>
+          <select id="failVersion">
+            <option value="0">不注入</option>
+            <option value="2">v2 转换中途失败</option>
+            <option value="3">v3 转换中途失败</option>
+            <option value="4">v4 转换中途失败</option>
+            <option value="5">v5 转换中途失败</option>
+          </select>
+        </label>
+
+        <label class="checkbox-row">
+          <input id="slowMode" type="checkbox" checked>
+          <span>慢速转换，方便观察进度和中断</span>
+        </label>
+
+        <div class="button-grid">
+          <button id="prepareBtn" class="primary">生成 v1 旧数据</button>
+          <button id="migrateBtn">开始迁移</button>
+          <button id="interruptBtn" class="warning" disabled>中断 Worker</button>
+          <button id="holdBtn">模拟数据库被占用</button>
+          <button id="releaseBtn" disabled>释放旧连接</button>
+          <button id="memoryBtn">隐私模式 / 内存降级</button>
+          <button id="refreshBtn" class="secondary">读取现状</button>
+          <button id="resetBtn" class="danger">重置数据库</button>
+        </div>
+
+        <p class="hint">中断只是终止 Worker；IndexedDB 的单次版本升级由事务保证，刷新后从数据库当前版本继续。</p>
+      </article>
+
+      <article class="panel progress-panel">
+        <div class="panel-heading">
+          <h2>迁移进度</h2>
+          <span id="versionBadge" class="version-badge">当前 v?</span>
+        </div>
+        <canvas id="progressCanvas" width="520" height="260" aria-label="v1 到 v5 迁移进度"></canvas>
+        <div class="progress-copy">
+          <div class="progress-label-row">
+            <strong id="progressPercent">0%</strong>
+            <span id="progressLabel">等待开始</span>
+          </div>
+          <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+        </div>
+        <div id="statusMessage" class="status neutral">正在检测运行环境…</div>
+      </article>
+    </section>
+
+    <section class="panel validation-panel">
+      <div class="panel-heading">
+        <h2>数据校验</h2>
+        <span id="validationBadge" class="validation-badge">未校验</span>
+      </div>
+      <div id="countCards" class="count-cards">
+        <div><strong>0</strong><span>users</span></div>
+        <div><strong>0</strong><span>posts</span></div>
+        <div><strong>0</strong><span>comments</span></div>
+        <div><strong>0</strong><span>attachments</span></div>
+        <div><strong>0</strong><span>auditLogs</span></div>
+      </div>
+      <ul id="validationList" class="validation-list"></ul>
+    </section>
+
+    <section class="panel log-panel">
+      <h2>事件日志</h2>
+      <ol id="logList" class="log-list"></ol>
+    </section>
+  </main>
+
+  <script src="js/migrations.js"></script>
+  <script src="js/memory-backend.js"></script>
+  <script src="js/idb-backend.js"></script>
+  <script src="js/migration-core.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
